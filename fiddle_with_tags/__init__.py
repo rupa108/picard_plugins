@@ -21,10 +21,6 @@ from .ui_swaptags_dialog import Ui_SwapTagsDialog
 class SwapTags(BaseAction):
     NAME = 'Swap Tags ...'
 
-    def __init__(self, *args, **kwargs):
-        super(SwapTags, self).__init__(*args, **kwargs)
-        self._ran = False
-
     def callback(self, objs):
         self.objs = objs
         files = self.tagger.get_files_from_objects(objs)
@@ -33,8 +29,6 @@ class SwapTags(BaseAction):
         dialog.exec_()
 
     def process(self, script):
-        if self._ran:
-            return
         files = self.files
 
         for file in files:
@@ -45,7 +39,6 @@ class SwapTags(BaseAction):
             except:
                 log.error(traceback.format_exc())
             m.strip_whitespace()
-        self._ran = True
 
 
 class SwapTagsDialog(QtGui.QDialog):
@@ -60,9 +53,10 @@ class SwapTagsDialog(QtGui.QDialog):
         self.ui.runButton.clicked.connect(self.call_script_processor)
 
     def call_script_processor(self):
+
         script = unicode(self.ui.script_edit.document().toPlainText())
         self.action.process(script)
         self.ui.info.setText(u"Done! Close the window and check the results!")
-
+        self.ui.runButton.setEnabled(False)
 
 register_cluster_action(SwapTags())
